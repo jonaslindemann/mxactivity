@@ -30,25 +30,26 @@ object MxActivityForm: TMxActivityForm
   object ActivityPages: TPageControl
     AlignWithMargins = True
     Left = 8
-    Top = 85
+    Top = 80
     Width = 1481
-    Height = 771
+    Height = 776
     Margins.Left = 8
-    Margins.Top = 20
+    Margins.Top = 15
     Margins.Right = 8
     Margins.Bottom = 8
-    ActivePage = RentalSheet
+    ActivePage = Training125Sheet
     Align = alClient
     TabOrder = 0
+    TabWidth = 170
     OnChange = ActivityPagesChange
+    ExplicitTop = 85
+    ExplicitHeight = 771
     object RentalSheet: TTabSheet
       Caption = 'Hyrcross'
       ImageIndex = 5
-      ExplicitLeft = 16
-      ExplicitTop = 36
       DesignSize = (
         1473
-        723)
+        728)
       object Label11: TLabel
         Left = 24
         Top = 29
@@ -120,7 +121,7 @@ object MxActivityForm: TMxActivityForm
         Left = 0
         Top = 240
         Width = 1473
-        Height = 483
+        Height = 488
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
@@ -150,7 +151,7 @@ object MxActivityForm: TMxActivityForm
       Caption = '50-85 cc'
       DesignSize = (
         1473
-        723)
+        728)
       object Label1: TLabel
         Left = 24
         Top = 29
@@ -290,7 +291,7 @@ object MxActivityForm: TMxActivityForm
         Left = 0
         Top = 408
         Width = 1473
-        Height = 315
+        Height = 320
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
@@ -312,9 +313,10 @@ object MxActivityForm: TMxActivityForm
     object Training125Sheet: TTabSheet
       Caption = '>= 125 cc'
       ImageIndex = 1
+      ExplicitHeight = 723
       DesignSize = (
         1473
-        723)
+        728)
       object Label7: TLabel
         Left = 24
         Top = 29
@@ -426,10 +428,11 @@ object MxActivityForm: TMxActivityForm
         Left = 0
         Top = 344
         Width = 1473
-        Height = 379
+        Height = 384
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 8
+        ExplicitHeight = 379
       end
       object PersonNbr125Edit: TMaskEdit
         Left = 304
@@ -533,7 +536,7 @@ object MxActivityForm: TMxActivityForm
         Left = 0
         Top = 344
         Width = 1473
-        Height = 379
+        Height = 384
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
@@ -564,13 +567,13 @@ object MxActivityForm: TMxActivityForm
         Left = 0
         Top = 0
         Width = 1473
-        Height = 723
+        Height = 728
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 1457
         ExplicitHeight = 684
         ControlData = {
-          4C0000003D980000B94A00000000000000000000000000000000000000000000
+          4C0000003D9800003E4B00000000000000000000000000000000000000000000
           000000004C000000000000000000000001000000E0D057007335CF11AE690800
           2B2E126208000000000000004C0000000114020000000000C000000000000046
           8000000000000000000000000000000000000000000000000000000000000000
@@ -584,17 +587,65 @@ object MxActivityForm: TMxActivityForm
         Left = 0
         Top = 0
         Width = 1473
-        Height = 723
+        Height = 728
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 1457
         ExplicitHeight = 684
         ControlData = {
-          4C0000003D980000B94A00000000000000000000000000000000000000000000
+          4C0000003D9800003E4B00000000000000000000000000000000000000000000
           000000004C000000000000000000000001000000E0D057007335CF11AE690800
           2B2E126208000000000000004C0000000114020000000000C000000000000046
           8000000000000000000000000000000000000000000000000000000000000000
           00000000000000000100000000000000000000000000000000000000}
+      end
+    end
+    object SettingsSheet: TTabSheet
+      Caption = 'Inst'#228'llningar'
+      ImageIndex = 6
+      object Label20: TLabel
+        Left = 40
+        Top = 45
+        Width = 144
+        Height = 33
+        Caption = 'Datakatalog'
+      end
+      object Label21: TLabel
+        Left = 40
+        Top = 109
+        Width = 193
+        Height = 33
+        Caption = 'Autospara (min)'
+      end
+      object SaveLocationEdit: TEdit
+        Left = 320
+        Top = 42
+        Width = 417
+        Height = 41
+        Color = clInfoBk
+        ReadOnly = True
+        TabOrder = 0
+        TextHint = 'F'#246'rnamn'
+      end
+      object SaveLocationButton: TButton
+        Left = 776
+        Top = 41
+        Width = 168
+        Height = 44
+        Caption = 'V'#228'lj'
+        TabOrder = 1
+        OnClick = SaveLocationButtonClick
+      end
+      object SaveFrequencySpin: TSpinEdit
+        Left = 320
+        Top = 106
+        Width = 73
+        Height = 43
+        MaxValue = 10
+        MinValue = 1
+        TabOrder = 2
+        Value = 5
+        OnChange = SaveFrequencySpinChange
       end
     end
   end
@@ -657,7 +708,7 @@ object MxActivityForm: TMxActivityForm
       TabOrder = 1
       StyleElements = []
     end
-    object Panel4: TPanel
+    object AppTitlePanel: TPanel
       Left = 520
       Top = 7
       Width = 409
@@ -681,5 +732,19 @@ object MxActivityForm: TMxActivityForm
     OnTimer = UpdateHeaderTimerTimer
     Left = 1028
     Top = 9
+  end
+  object AutosaveTimer: TTimer
+    Enabled = False
+    Interval = 120000
+    OnTimer = AutosaveTimerTimer
+    Left = 1160
+    Top = 8
+  end
+  object OpenDialog: TFileOpenDialog
+    FavoriteLinks = <>
+    FileTypes = <>
+    Options = [fdoPickFolders, fdoPathMustExist]
+    Left = 1248
+    Top = 10
   end
 end

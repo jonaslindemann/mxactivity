@@ -2,7 +2,8 @@ unit mx;
 
 interface
 
-uses System.Generics.Collections, Vcl.Grids, SysUtils;
+uses System.Generics.Collections, Vcl.Grids, SysUtils, System.Win.Registry,
+  Windows, System.IOUtils, System.Classes;
 
 type
 
@@ -16,6 +17,10 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
+    procedure Setup;
+    procedure Save;
+    procedure Load;
 
     property SaveLocation : string read FSaveLocation write SetSaveLocation;
     property SaveFrequency : integer read FSaveFrequency write SetSaveFrequency;
@@ -52,6 +57,7 @@ type
     constructor Create;
 
     procedure WriteCSVToFile(var f : TextFile);
+    procedure ReadFromCSVFile(var f : TextFile);
 
     property FirstName : string read FFirstName write SetFirstName;
     property LastName : string read FLastName write SetLastName;
@@ -71,12 +77,17 @@ type
   private
     FParticipants : TList<TMxParticipant>;
     FStringGrid : TStringGrid;
+    FSaveLocation : string;
     procedure SetStringGrid(const Value: TStringGrid);
+    procedure SetSaveLocation(const Value: string);
   public
     constructor Create;
     destructor Destroy; override;
 
+    procedure Clear;
+
     procedure SaveCSV(Filename : string);
+    procedure ReadCSV(Filename : string);
 
     procedure AddExampleData;
 
@@ -93,6 +104,8 @@ type
     property Participants : TList<TMxParticipant> read FParticipants;
 
     property StringGrid : TStringGrid read FStringGrid write SetStringGrid;
+
+    property SaveLocation : string read FSaveLocation write SetSaveLocation;
   end;
 
 implementation
@@ -181,7 +194,7 @@ end;
 
 procedure TMxParticipant.WriteCSVToFile(var f: TextFile);
 begin
-  WriteLn(f,
+  Write(f,
     FFirstName+';'+
     FLastName+';'+
     FPersonNbr+';'+
@@ -192,7 +205,48 @@ begin
     FTrack+';'+
     FDate+';'+
     FTime+';');
+
+  if FFirstAdmin then
+    WriteLn(f, 'JA')
+  else
+    Writeln(f, 'NEJ');
 end;
+
+procedure TMxParticipant.ReadFromCSVFile(var f: TextFile);
+var
+  Line : string;
+  Items : TStringList;
+  AdminString : string;
+  i : integer;
+begin
+  ReadLn(f, Line);
+
+  Items:=TStringList.Create;
+  Items.Delimiter:=';';
+  Items.DelimitedText:=Line;
+
+  FFirstName:=Items[0];
+  FLastName:=Items[1];
+  FPersonNbr:=Items[2];
+  FPhoneNumber:=Items[3];
+  FClubName:=Items[4];
+  FTransponder:=Items[5];
+  FComment:=Items[6];
+  FTrack:=Items[7];
+  FDate:=Items[8];
+  FTime:=Items[9];
+  if Items.Count>10 then
+  begin
+    AdminString:=Items[10];
+    if AdminString = 'JA' then
+      FFirstAdmin:=true
+    else
+      FFirstAdmin:=false;
+  end;
+
+  Items.Free;
+end;
+
 
 { TMxActivitySheet }
 
@@ -200,14 +254,23 @@ constructor TMxActivitySheet.Create;
 begin
   FParticipants:=TList<TMxParticipant>.Create;
   FStringGrid:=nil;
-
-  //AddExampleData;
+  FSaveLocation:='';
 end;
 
 destructor TMxActivitySheet.Destroy;
 begin
   FParticipants.Destroy;
   inherited;
+end;
+
+procedure TMxActivitySheet.Clear;
+var
+  P : TMxParticipant;
+begin
+    for P in FParticipants do
+      P.Free;
+
+    FParticipants.Clear;
 end;
 
 procedure TMxActivitySheet.AddExampleData;
@@ -314,23 +377,72 @@ begin
   Self.FParticipants.Add(Participant);
 end;
 
+
 procedure TMxActivitySheet.RemoveAt(idx: integer);
 begin
   FParticipants.Delete(idx);
+end;
+
+procedure TMxActivitySheet.ReadCSV(Filename: string);
+var
+  f : TextFile;
+  P : TMxParticipant;
+  Fname : string;
+begin
+
+  Self.FParticipants.Clear;
+
+  if FSaveLocation<>'' then
+    FName:=FSaveLocation+'\'+Filename
+  else
+    FName:=Filename;
+
+  if TFile.Exists(FName) then
+  begin
+    AssignFile(f, FName);
+
+    Reset(f);
+
+    while not Eof(f) do
+    begin
+      P:=TMxParticipant.Create;
+      P.ReadFromCSVFile(f);
+      FParticipants.Add(P);
+    end;
+
+    CloseFile(f);
+  end;
+
 end;
 
 procedure TMxActivitySheet.SaveCSV(Filename: string);
 var
   f : TextFile;
   P : TMxParticipant;
+  Fname : string;
 begin
-  AssignFile(f, Filename);
+
+  if FSaveLocation<>'' then
+    FName:=FSaveLocation+'\'+Filename
+  else
+    FName:=Filename;
+
+  if TFile.Exists(FName) then
+    TFile.Copy(FName, FName+'.bak', true);
+
+  AssignFile(f, FName);
+
   Rewrite(f);
+
   for P in FParticipants do
-  begin
     P.WriteCSVToFile(f);
-  end;
+
   CloseFile(f);
+end;
+
+procedure TMxActivitySheet.SetSaveLocation(const Value: string);
+begin
+  FSaveLocation := Value;
 end;
 
 procedure TMxActivitySheet.SetStringGrid(const Value: TStringGrid);
@@ -456,14 +568,50 @@ end;
 { TMxSettings }
 
 constructor TMxSettings.Create;
+var
+  Registry : TRegistry;
 begin
 
+  FSaveLocation:='';
+  FSaveFrequency:=5;
 end;
 
 destructor TMxSettings.Destroy;
 begin
 
   inherited;
+end;
+
+procedure TMxSettings.Load;
+var
+  SettingsFile: TRegistryIniFile;
+begin
+  SettingsFile := TRegistryIniFile.Create('Software\MxActivty');
+
+  try
+    FSaveLocation:=SettingsFile.ReadString('Settings', 'SaveLocation', '');
+    FSaveFrequency:=SettingsFile.ReadInteger('Settings', 'SaveFrequency', -1);
+  finally
+    SettingsFile.Free;
+  end;
+end;
+
+procedure TMxSettings.Save;
+var
+  SettingsFile: TRegistryIniFile;
+begin
+  SettingsFile := TRegistryIniFile.Create('Software\MxActivty');
+
+  try
+    SettingsFile.WriteString('Settings', 'SaveLocation', FSaveLocation);
+    SettingsFile.WriteInteger('Settings', 'SaveFrequency', FSaveFrequency);
+  finally
+    SettingsFile.Free;
+  end;
+end;
+
+procedure TMxSettings.Setup;
+begin
 end;
 
 procedure TMxSettings.SetSaveFrequency(const Value: integer);

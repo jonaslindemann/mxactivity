@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.ComCtrls,
-  mx, Vcl.ExtCtrls, Vcl.Mask, Vcl.OleCtrls, SHDocVw;
+  mx, Vcl.ExtCtrls, Vcl.Mask, Vcl.OleCtrls, SHDocVw, Vcl.Samples.Spin;
 
 type
   TMxActivityForm = class(TForm)
@@ -46,7 +46,7 @@ type
     Panel1: TPanel;
     DatePanel: TPanel;
     TimePanel: TPanel;
-    Panel4: TPanel;
+    AppTitlePanel: TPanel;
     UpdateHeaderTimer: TTimer;
     HomePageSheet: TTabSheet;
     WebBrowser: TWebBrowser;
@@ -78,6 +78,14 @@ type
     RemoteRentalButton: TButton;
     ActivitySheetGridRental: TStringGrid;
     SummaryRentalLabel: TPanel;
+    AutosaveTimer: TTimer;
+    SettingsSheet: TTabSheet;
+    Label20: TLabel;
+    SaveLocationEdit: TEdit;
+    SaveLocationButton: TButton;
+    OpenDialog: TFileOpenDialog;
+    Label21: TLabel;
+    SaveFrequencySpin: TSpinEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure UpdateHeaderTimerTimer(Sender: TObject);
@@ -89,12 +97,17 @@ type
     procedure ActivityPagesChange(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RegisterRentalButtonClick(Sender: TObject);
+    procedure AutosaveTimerTimer(Sender: TObject);
+    procedure SaveLocationButtonClick(Sender: TObject);
+    procedure SaveFrequencySpinChange(Sender: TObject);
   private
     { Private declarations }
     FActivitySheet85 : TMxActivitySheet;
     FActivitySheet125 : TMxActivitySheet;
     FActivitySheetRental : TMxActivitySheet;
     FActivitySheetAdmin : TMxActivitySheet;
+
+    FSettings : TMxSettings;
 
     function ValidForm85 : boolean;
     function ValidForm125 : boolean;
@@ -105,6 +118,10 @@ type
     procedure ClearForm125;
     procedure ClearFormAdmin;
     procedure ClearFormRental;
+
+    procedure UpdateSettingsSheet;
+    procedure UpdateSettings;
+
   public
     { Public declarations }
   end;
@@ -116,23 +133,6 @@ implementation
 
 {$R *.dfm}
 
-procedure TMxActivityForm.ActivityPagesChange(Sender: TObject);
-begin
-  if Self.ActivityPages.ActivePage = Training85Sheet then
-  begin
-    Self.FirstName85Edit.SetFocus;
-  end;
-
-  if Self.ActivityPages.ActivePage = Training125Sheet then
-  begin
-    Self.FirstName125Edit.SetFocus;
-  end;
-
-  if Self.ActivityPages.ActivePage = TrainingAdminSheet then
-  begin
-    Self.FirstNameAdminEdit.SetFocus;
-  end;
-end;
 
 procedure TMxActivityForm.ClearForm125;
 begin
@@ -167,130 +167,19 @@ begin
   Self.PersonNbrRentalEdit.Clear;
 end;
 
-procedure TMxActivityForm.CloseButtonClick(Sender: TObject);
+procedure TMxActivityForm.UpdateSettings;
 begin
-  Self.Close;
+  FSettings.SaveLocation:=Self.SaveLocationEdit.Text;
+  FSettings.SaveFrequency:=Self.SaveFrequencySpin.Value;
+
+  AutosaveTimer.Interval:=FSettings.SaveFrequency*60*1000;
+  AutosaveTimer.Enabled:=true;
 end;
 
-procedure TMxActivityForm.FormClose(Sender: TObject; var Action: TCloseAction);
-var
-  Today : TDateTime;
+procedure TMxActivityForm.UpdateSettingsSheet;
 begin
-  Today:=Now;
-
-  FActivitySheet85.SaveCSV(DateToStr(Today)+'-activity-85.csv');
-  FActivitySheet125.SaveCSV(DateToStr(Today)+'-activity-125.csv');
-  FActivitySheetRental.SaveCSV(DateToStr(Today)+'-activity-rental.csv');
-  FActivitySheetAdmin.SaveCSV(DateToStr(Today)+'-activity-admin.csv');
-
-  FActivitySheet85.Free;
-  FActivitySheet125.Free;
-  FActivitySheetRental.Free;
-  FActivitySheetAdmin.Free;
-  UpdateHeaderTimer.Enabled:=false;
-
-  WebBrowser.Free;
-  FaceBookBrowser.Free;
-end;
-
-procedure TMxActivityForm.FormCreate(Sender: TObject);
-begin
-  FActivitySheet85 := TMxActivitySheet.Create;
-  FActivitySheet125 := TMxActivitySheet.Create;
-  FActivitySheetRental := TMxActivitySheet.Create;
-  FActivitySheetAdmin := TMxActivitySheet.Create;
-end;
-
-procedure TMxActivityForm.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  if Key=VK_RETURN then
-    Self.Perform(WM_NEXTDLGCTL, 0, 0);
-end;
-
-procedure TMxActivityForm.FormShow(Sender: TObject);
-begin
-  FActivitySheet85.StringGrid:=ActivitySheetGrid85;
-  FActivitySheet85.UpdateGrid;
-  FActivitySheet125.StringGrid:=ActivitySheetGrid125;
-  FActivitySheet125.UpdateGrid;
-  FActivitySheetAdmin.StringGrid:=ActivitySheetGridAdmin;
-  FActivitySheetAdmin.UpdateAdminGrid;
-  FActivitySheetRental.StringGrid:=Self.ActivitySheetGridRental;
-  FActivitySheetRental.UpdateGrid;
-
-  WebBrowser.Navigate('www.skivarpsmk.se');
-  FacebookBrowser.Navigate('https://www.facebook.com/skivarpsmk');
-
-  Self.ActivityPages.ActivePageIndex:=2;
-  Self.FirstName125Edit.SetFocus;
-end;
-
-procedure TMxActivityForm.Register125ButtonClick(Sender: TObject);
-begin
-  if Self.ValidForm125 then
-  begin
-    FActivitySheet125.Add(FirstName125Edit.Text, LastName125Edit.Text, PersonNbr125Edit.Text, Club125Edit.Text, Transponder125Edit.Text, 'Stora banan');
-    FActivitySheet125.UpdateGrid;
-    Self.Summary125Panel.Caption:=IntToStr(FActivitySheet125.Participants.Count);
-    Self.ClearForm125;
-    Self.FirstName125Edit.SetFocus;
-  end;
-end;
-
-procedure TMxActivityForm.Register85ButtonClick(Sender: TObject);
-begin
-  if Self.ValidForm85 then
-  begin
-    FActivitySheet85.Add(
-      FirstName85Edit.Text,
-      LastName85Edit.Text,
-      PersonNbr85Edit.Text,
-      ClubName85Edit.Text,
-      Transponder85Edit.Text,
-      Track85Combo.Items[Track85Combo.ItemIndex]);
-
-    FActivitySheet85.UpdateGrid;
-    Self.Summary85Panel.Caption:=IntToStr(FActivitySheet85.Participants.Count);
-    Self.ClearForm85;
-    Self.FirstName85Edit.SetFocus;
-  end;
-end;
-
-procedure TMxActivityForm.RegisterAdminButtonClick(Sender: TObject);
-begin
-  if Self.ValidFormAdmin then
-  begin
-    if Self.AdminTACheck.Checked then
-      FActivitySheetAdmin.AddFirstAdmin(Self.FirstNameAdminEdit.Text, Self.LastNameAdminEdit.Text, Self.PersonNbrAdminEdit.Text, Self.PhoneNumberAdminEdit.Text)
-    else
-      FActivitySheetAdmin.AddAdmin(Self.FirstNameAdminEdit.Text, Self.LastNameAdminEdit.Text, Self.PersonNbrAdminEdit.Text, Self.PhoneNumberAdminEdit.Text);
-
-    FActivitySheetAdmin.UpdateGrid;
-    Self.ClearFormAdmin;
-    Self.FirstNameAdminEdit.SetFocus;
-  end;
-end;
-
-procedure TMxActivityForm.RegisterRentalButtonClick(Sender: TObject);
-begin
-  if Self.ValidFormRental then
-  begin
-    FActivitySheetRental.Add(Self.FirstNameRentalEdit.Text, Self.LastNameRentalEdit.Text, Self.PersonNbrRentalEdit.Text);
-    FActivitySheetRental.UpdateRentalGrid;
-    Self.ClearFormRental;
-    Self.FirstNameRentalEdit.SetFocus;
-    Self.SummaryRentalLabel.Caption:=IntToStr(FActivitySheetRental.Participants.Count);
-  end;
-end;
-
-procedure TMxActivityForm.UpdateHeaderTimerTimer(Sender: TObject);
-var
-  Today : TDateTime;
-begin
-  Today:=Now;
-  DatePanel.Caption:=DateToStr(today);
-  TimePanel.Caption:=TimeToStr(today);
+  Self.SaveLocationEdit.Text:=FSettings.SaveLocation;
+  Self.SaveFrequencySpin.Value:=FSettings.SaveFrequency;
 end;
 
 function TMxActivityForm.ValidForm125: boolean;
@@ -369,6 +258,222 @@ begin
     Valid:=false;
 
   Result:=Valid;
+end;
+
+procedure TMxActivityForm.FormCreate(Sender: TObject);
+var
+  Today : TDateTime;
+begin
+  FSettings:=TMxSettings.Create;
+  FSettings.Setup;
+  FSettings.Load;
+
+  Today:=Now;
+
+  FActivitySheet85 := TMxActivitySheet.Create;
+  FActivitySheet85.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheet125 := TMxActivitySheet.Create;
+  FActivitySheet125.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheetRental := TMxActivitySheet.Create;
+  FActivitySheetRental.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheetAdmin := TMxActivitySheet.Create;
+  FActivitySheetAdmin.SaveLocation:=FSettings.SaveLocation;
+
+  FActivitySheet85.ReadCSV(DateToStr(Today)+'-activity-85.csv');
+  FActivitySheet125.ReadCSV(DateToStr(Today)+'-activity-125.csv');
+  FActivitySheetRental.ReadCSV(DateToStr(Today)+'-activity-rental.csv');
+  FActivitySheetAdmin.ReadCSV(DateToStr(Today)+'-activity-admin.csv');
+
+end;
+
+procedure TMxActivityForm.FormShow(Sender: TObject);
+begin
+  FActivitySheet85.StringGrid:=ActivitySheetGrid85;
+  FActivitySheet85.UpdateGrid;
+  FActivitySheet125.StringGrid:=ActivitySheetGrid125;
+  FActivitySheet125.UpdateGrid;
+  FActivitySheetAdmin.StringGrid:=ActivitySheetGridAdmin;
+  FActivitySheetAdmin.UpdateAdminGrid;
+  FActivitySheetRental.StringGrid:=Self.ActivitySheetGridRental;
+  FActivitySheetRental.UpdateGrid;
+
+  Self.SummaryRentalLabel.Caption:=IntToStr(FActivitySheetRental.Participants.Count);
+  Self.Summary85Panel.Caption:=IntToStr(FActivitySheet85.Participants.Count);
+  Self.Summary125Panel.Caption:=IntToStr(FActivitySheet125.Participants.Count);
+
+  WebBrowser.Navigate('www.skivarpsmk.se');
+  FacebookBrowser.Navigate('https://www.facebook.com/skivarpsmk');
+
+  Self.ActivityPages.ActivePageIndex:=2;
+  Self.FirstName125Edit.SetFocus;
+
+  Self.UpdateSettingsSheet;
+  Self.UpdateSettings;
+end;
+
+procedure TMxActivityForm.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  Today : TDateTime;
+begin
+  Today:=Now;
+
+  FActivitySheet85.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheet85.SaveCSV(DateToStr(Today)+'-activity-85.csv');
+  FActivitySheet125.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheet125.SaveCSV(DateToStr(Today)+'-activity-125.csv');
+  FActivitySheetRental.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheetRental.SaveCSV(DateToStr(Today)+'-activity-rental.csv');
+  FActivitySheetAdmin.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheetAdmin.SaveCSV(DateToStr(Today)+'-activity-admin.csv');
+
+  FActivitySheet85.Free;
+  FActivitySheet125.Free;
+  FActivitySheetRental.Free;
+  FActivitySheetAdmin.Free;
+  UpdateHeaderTimer.Enabled:=false;
+
+  WebBrowser.Free;
+  FaceBookBrowser.Free;
+
+  UpdateSettings;
+
+  FSettings.Save;
+  FSettings.Free;
+end;
+
+procedure TMxActivityForm.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key=VK_RETURN then
+    Self.Perform(WM_NEXTDLGCTL, 0, 0);
+end;
+
+procedure TMxActivityForm.ActivityPagesChange(Sender: TObject);
+begin
+  if Self.ActivityPages.ActivePage = Training85Sheet then
+  begin
+    Self.FirstName85Edit.SetFocus;
+  end;
+
+  if Self.ActivityPages.ActivePage = Training125Sheet then
+  begin
+    Self.FirstName125Edit.SetFocus;
+  end;
+
+  if Self.ActivityPages.ActivePage = TrainingAdminSheet then
+  begin
+    Self.FirstNameAdminEdit.SetFocus;
+  end;
+end;
+
+procedure TMxActivityForm.AutosaveTimerTimer(Sender: TObject);
+var
+  Today : TDateTime;
+  TempCaption : string;
+begin
+  TempCaption:=Self.AppTitlePanel.Caption;
+  Self.AppTitlePanel.Caption:='Saving...';
+
+  Today:=Now;
+
+  FActivitySheet85.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheet85.SaveCSV(DateToStr(Today)+'-activity-85.csv');
+  FActivitySheet125.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheet125.SaveCSV(DateToStr(Today)+'-activity-125.csv');
+  FActivitySheetRental.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheetRental.SaveCSV(DateToStr(Today)+'-activity-rental.csv');
+  FActivitySheetAdmin.SaveLocation:=FSettings.SaveLocation;
+  FActivitySheetAdmin.SaveCSV(DateToStr(Today)+'-activity-admin.csv');
+
+  Self.AppTitlePanel.Caption:=TempCaption;
+end;
+
+procedure TMxActivityForm.CloseButtonClick(Sender: TObject);
+begin
+  Self.Close;
+end;
+
+procedure TMxActivityForm.Register125ButtonClick(Sender: TObject);
+begin
+  if Self.ValidForm125 then
+  begin
+    FActivitySheet125.Add(FirstName125Edit.Text, LastName125Edit.Text, PersonNbr125Edit.Text, Club125Edit.Text, Transponder125Edit.Text, 'Stora banan');
+    FActivitySheet125.UpdateGrid;
+    Self.Summary125Panel.Caption:=IntToStr(FActivitySheet125.Participants.Count);
+    Self.ClearForm125;
+    Self.FirstName125Edit.SetFocus;
+  end;
+end;
+
+procedure TMxActivityForm.Register85ButtonClick(Sender: TObject);
+begin
+  if Self.ValidForm85 then
+  begin
+    FActivitySheet85.Add(
+      FirstName85Edit.Text,
+      LastName85Edit.Text,
+      PersonNbr85Edit.Text,
+      ClubName85Edit.Text,
+      Transponder85Edit.Text,
+      Track85Combo.Items[Track85Combo.ItemIndex]);
+
+    FActivitySheet85.UpdateGrid;
+    Self.Summary85Panel.Caption:=IntToStr(FActivitySheet85.Participants.Count);
+    Self.ClearForm85;
+    Self.FirstName85Edit.SetFocus;
+  end;
+end;
+
+procedure TMxActivityForm.RegisterAdminButtonClick(Sender: TObject);
+begin
+  if Self.ValidFormAdmin then
+  begin
+    if Self.AdminTACheck.Checked then
+      FActivitySheetAdmin.AddFirstAdmin(Self.FirstNameAdminEdit.Text, Self.LastNameAdminEdit.Text, Self.PersonNbrAdminEdit.Text, Self.PhoneNumberAdminEdit.Text)
+    else
+      FActivitySheetAdmin.AddAdmin(Self.FirstNameAdminEdit.Text, Self.LastNameAdminEdit.Text, Self.PersonNbrAdminEdit.Text, Self.PhoneNumberAdminEdit.Text);
+
+    FActivitySheetAdmin.UpdateAdminGrid;
+    Self.ClearFormAdmin;
+    Self.FirstNameAdminEdit.SetFocus;
+  end;
+end;
+
+procedure TMxActivityForm.RegisterRentalButtonClick(Sender: TObject);
+begin
+  if Self.ValidFormRental then
+  begin
+    FActivitySheetRental.Add(Self.FirstNameRentalEdit.Text, Self.LastNameRentalEdit.Text, Self.PersonNbrRentalEdit.Text);
+    FActivitySheetRental.UpdateRentalGrid;
+    Self.ClearFormRental;
+    Self.FirstNameRentalEdit.SetFocus;
+    Self.SummaryRentalLabel.Caption:=IntToStr(FActivitySheetRental.Participants.Count);
+  end;
+end;
+
+procedure TMxActivityForm.SaveFrequencySpinChange(Sender: TObject);
+begin
+  Self.UpdateSettings;
+end;
+
+procedure TMxActivityForm.SaveLocationButtonClick(Sender: TObject);
+begin
+  if OpenDialog.Execute then
+  begin
+    FSettings.SaveLocation:=OpenDialog.FileName;
+    FSettings.Save;
+    Self.UpdateSettingsSheet;
+    Self.UpdateSettings;
+  end;
+end;
+
+procedure TMxActivityForm.UpdateHeaderTimerTimer(Sender: TObject);
+var
+  Today : TDateTime;
+begin
+  Today:=Now;
+  DatePanel.Caption:=DateToStr(today);
+  TimePanel.Caption:=TimeToStr(today);
 end;
 
 end.
