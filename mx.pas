@@ -11,19 +11,22 @@ type
   private
     FSaveLocation: string;
     FSaveFrequency: integer;
+    FLastStart : string;
+
     procedure SetSaveFrequency(const Value: integer);
     procedure SetSaveLocation(const Value: string);
+    procedure SetLastStart(const Value: string);
 
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure Setup;
     procedure Save;
     procedure Load;
 
     property SaveLocation : string read FSaveLocation write SetSaveLocation;
     property SaveFrequency : integer read FSaveFrequency write SetSaveFrequency;
+    property LastStart : string read FLastStart write SetLastStart;
   end;
 
   TMxParticipant = class(TObject)
@@ -78,16 +81,24 @@ type
     FParticipants : TList<TMxParticipant>;
     FStringGrid : TStringGrid;
     FSaveLocation : string;
+    FFilename : string;
+    FName : string;
     procedure SetStringGrid(const Value: TStringGrid);
     procedure SetSaveLocation(const Value: string);
+    procedure SetFilename(const Value: string);
+    procedure SetName(const Value: string);
+    function GetFilename: string;
+    function GetFullPath: string;
   public
-    constructor Create;
+    constructor Create(Name : string);
     destructor Destroy; override;
 
     procedure Clear;
 
-    procedure SaveCSV(Filename : string);
-    procedure ReadCSV(Filename : string);
+    procedure SaveCSV;
+    procedure ReadCSV;
+
+    function HasTables : boolean;
 
     procedure AddExampleData;
 
@@ -106,6 +117,9 @@ type
     property StringGrid : TStringGrid read FStringGrid write SetStringGrid;
 
     property SaveLocation : string read FSaveLocation write SetSaveLocation;
+    property Filename : string read GetFilename write SetFilename;
+    property FullPath : string read GetFullPath;
+    property Name : string read FName write SetName;
   end;
 
 implementation
@@ -250,8 +264,9 @@ end;
 
 { TMxActivitySheet }
 
-constructor TMxActivitySheet.Create;
+constructor TMxActivitySheet.Create(Name : string);
 begin
+  FName:=Name;
   FParticipants:=TList<TMxParticipant>.Create;
   FStringGrid:=nil;
   FSaveLocation:='';
@@ -263,14 +278,36 @@ begin
   inherited;
 end;
 
+function TMxActivitySheet.GetFilename: string;
+var
+  Today : TDateTime;
+begin
+  Today:=Now;
+  FFilename:=DateToStr(Today)+'-activity-'+Name+'.csv';
+  Result:=FFileName;
+end;
+
+function TMxActivitySheet.GetFullPath: string;
+begin
+  if FSaveLocation<>'' then
+    Result:=Self.SaveLocation+'\\'+Self.Filename
+  else
+    Result:=Self.Filename;
+end;
+
+function TMxActivitySheet.HasTables: boolean;
+begin
+  Result:=TFile.Exists(Self.FullPath)
+end;
+
 procedure TMxActivitySheet.Clear;
 var
   P : TMxParticipant;
 begin
-    for P in FParticipants do
-      P.Free;
+  for P in FParticipants do
+    P.Free;
 
-    FParticipants.Clear;
+  FParticipants.Clear;
 end;
 
 procedure TMxActivitySheet.AddExampleData;
@@ -383,7 +420,7 @@ begin
   FParticipants.Delete(idx);
 end;
 
-procedure TMxActivitySheet.ReadCSV(Filename: string);
+procedure TMxActivitySheet.ReadCSV;
 var
   f : TextFile;
   P : TMxParticipant;
@@ -392,14 +429,9 @@ begin
 
   Self.FParticipants.Clear;
 
-  if FSaveLocation<>'' then
-    FName:=FSaveLocation+'\'+Filename
-  else
-    FName:=Filename;
-
-  if TFile.Exists(FName) then
+  if TFile.Exists(Self.FullPath) then
   begin
-    AssignFile(f, FName);
+    AssignFile(f, Self.FullPath);
 
     Reset(f);
 
@@ -415,22 +447,18 @@ begin
 
 end;
 
-procedure TMxActivitySheet.SaveCSV(Filename: string);
+procedure TMxActivitySheet.SaveCSV;
 var
   f : TextFile;
   P : TMxParticipant;
   Fname : string;
 begin
 
-  if FSaveLocation<>'' then
-    FName:=FSaveLocation+'\'+Filename
-  else
-    FName:=Filename;
 
-  if TFile.Exists(FName) then
-    TFile.Copy(FName, FName+'.bak', true);
+  if TFile.Exists(Self.FullPath) then
+    TFile.Copy(Self.FullPath, Self.FullPath+'.bak', true);
 
-  AssignFile(f, FName);
+  AssignFile(f, Self.FullPath);
 
   Rewrite(f);
 
@@ -438,6 +466,16 @@ begin
     P.WriteCSVToFile(f);
 
   CloseFile(f);
+end;
+
+procedure TMxActivitySheet.SetFilename(const Value: string);
+begin
+  FFilename := Value;
+end;
+
+procedure TMxActivitySheet.SetName(const Value: string);
+begin
+  FName := Value;
 end;
 
 procedure TMxActivitySheet.SetSaveLocation(const Value: string);
@@ -574,6 +612,7 @@ begin
 
   FSaveLocation:='';
   FSaveFrequency:=5;
+  FLastStart:='';
 end;
 
 destructor TMxSettings.Destroy;
@@ -591,6 +630,7 @@ begin
   try
     FSaveLocation:=SettingsFile.ReadString('Settings', 'SaveLocation', '');
     FSaveFrequency:=SettingsFile.ReadInteger('Settings', 'SaveFrequency', -1);
+    FLastStart:=SettingsFile.ReadString('Settings', 'LastStart', '');
   finally
     SettingsFile.Free;
   end;
@@ -605,13 +645,15 @@ begin
   try
     SettingsFile.WriteString('Settings', 'SaveLocation', FSaveLocation);
     SettingsFile.WriteInteger('Settings', 'SaveFrequency', FSaveFrequency);
+    SettingsFile.WriteString('Settings', 'LastStart', FLastStart);
   finally
     SettingsFile.Free;
   end;
 end;
 
-procedure TMxSettings.Setup;
+procedure TMxSettings.SetLastStart(const Value: string);
 begin
+  FLastStart := Value;
 end;
 
 procedure TMxSettings.SetSaveFrequency(const Value: integer);

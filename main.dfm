@@ -37,13 +37,13 @@ object MxActivityForm: TMxActivityForm
     Margins.Top = 15
     Margins.Right = 8
     Margins.Bottom = 8
-    ActivePage = Training125Sheet
+    ActivePage = RentalSheet
     Align = alClient
     TabOrder = 0
     TabWidth = 170
     OnChange = ActivityPagesChange
-    ExplicitTop = 85
-    ExplicitHeight = 771
+    ExplicitLeft = 3
+    ExplicitTop = 83
     object RentalSheet: TTabSheet
       Caption = 'Hyrcross'
       ImageIndex = 5
@@ -126,6 +126,7 @@ object MxActivityForm: TMxActivityForm
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
         TabOrder = 5
+        ExplicitTop = 233
       end
       object SummaryRentalLabel: TPanel
         Left = 1292
@@ -313,7 +314,6 @@ object MxActivityForm: TMxActivityForm
     object Training125Sheet: TTabSheet
       Caption = '>= 125 cc'
       ImageIndex = 1
-      ExplicitHeight = 723
       DesignSize = (
         1473
         728)
@@ -432,7 +432,6 @@ object MxActivityForm: TMxActivityForm
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 8
-        ExplicitHeight = 379
       end
       object PersonNbr125Edit: TMaskEdit
         Left = 304
@@ -689,9 +688,9 @@ object MxActivityForm: TMxActivityForm
       StyleElements = []
     end
     object TimePanel: TPanel
-      Left = 1190
+      Left = 1174
       Top = 7
-      Width = 273
+      Width = 187
       Height = 50
       Alignment = taRightJustify
       Anchors = [akTop, akRight]
@@ -727,24 +726,34 @@ object MxActivityForm: TMxActivityForm
       TabOrder = 2
       StyleElements = []
     end
+    object CloseButton: TButton
+      Left = 1384
+      Top = 8
+      Width = 101
+      Height = 50
+      Anchors = [akTop, akRight]
+      Caption = 'St'#228'ng'
+      TabOrder = 3
+      OnClick = CloseButtonClick
+    end
   end
   object UpdateHeaderTimer: TTimer
     OnTimer = UpdateHeaderTimerTimer
-    Left = 1028
-    Top = 9
+    Left = 1316
+    Top = 793
   end
   object AutosaveTimer: TTimer
     Enabled = False
     Interval = 120000
     OnTimer = AutosaveTimerTimer
-    Left = 1160
-    Top = 8
+    Left = 1192
+    Top = 792
   end
   object OpenDialog: TFileOpenDialog
     FavoriteLinks = <>
     FileTypes = <>
     Options = [fdoPickFolders, fdoPathMustExist]
-    Left = 1248
-    Top = 10
+    Left = 1080
+    Top = 794
   end
 end

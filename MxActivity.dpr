@@ -12,6 +12,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  TStyleManager.TrySetStyle('Emerald Light Slate');
   Application.CreateForm(TMxActivityForm, MxActivityForm);
   Application.Run;
 end.
