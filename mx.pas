@@ -209,16 +209,16 @@ end;
 procedure TMxParticipant.WriteCSVToFile(var f: TextFile);
 begin
   Write(f,
-    FFirstName+';'+
-    FLastName+';'+
-    FPersonNbr+';'+
-    FPhoneNumber+';'+
-    FClubName+';'+
-    FTransponder+';'+
-    FComment+';'+
-    FTrack+';'+
-    FDate+';'+
-    FTime+';');
+    '"'+FFirstName+'";'+
+    '"'+FLastName+'";'+
+    '"'+FPersonNbr+'";'+
+    '"'+FPhoneNumber+'";'+
+    '"'+FClubName+'";'+
+    '"'+FTransponder+'";'+
+    '"'+FComment+'";'+
+    '"'+FTrack+'";'+
+    '"'+FDate+'";'+
+    '"'+FTime+'";');
 
   if FFirstAdmin then
     WriteLn(f, 'JA')

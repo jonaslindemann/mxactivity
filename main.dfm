@@ -37,13 +37,11 @@ object MxActivityForm: TMxActivityForm
     Margins.Top = 15
     Margins.Right = 8
     Margins.Bottom = 8
-    ActivePage = RentalSheet
+    ActivePage = TrainingAdminSheet
     Align = alClient
     TabOrder = 0
     TabWidth = 170
     OnChange = ActivityPagesChange
-    ExplicitLeft = 3
-    ExplicitTop = 83
     object RentalSheet: TTabSheet
       Caption = 'Hyrcross'
       ImageIndex = 5
@@ -126,7 +124,6 @@ object MxActivityForm: TMxActivityForm
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
         TabOrder = 5
-        ExplicitTop = 233
       end
       object SummaryRentalLabel: TPanel
         Left = 1292
@@ -448,6 +445,7 @@ object MxActivityForm: TMxActivityForm
     object TrainingAdminSheet: TTabSheet
       Caption = 'TA/Kiosk'
       ImageIndex = 3
+      ExplicitLeft = 0
       object Label13: TLabel
         Left = 32
         Top = 37
@@ -484,6 +482,14 @@ object MxActivityForm: TMxActivityForm
         Width = 87
         Height = 33
         Caption = 'Telefon'
+      end
+      object Shape1: TShape
+        Left = 768
+        Top = 184
+        Width = 393
+        Height = 97
+        Pen.Width = 2
+        Shape = stRoundRect
       end
       object FirstNameAdminEdit: TEdit
         Left = 312
@@ -540,6 +546,8 @@ object MxActivityForm: TMxActivityForm
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
         TabOrder = 7
+        ExplicitLeft = -3
+        ExplicitTop = 350
       end
       object AdminTACheck: TCheckBox
         Left = 313
@@ -556,7 +564,28 @@ object MxActivityForm: TMxActivityForm
         Height = 41
         Color = clInfoBk
         TabOrder = 3
-        TextHint = 'Efternamn'
+        TextHint = 'Telefon'
+      end
+      object StaticText1: TStaticText
+        Left = 782
+        Top = 197
+        Width = 363
+        Height = 74
+        Margins.Left = 8
+        Margins.Top = 8
+        Margins.Right = 8
+        Margins.Bottom = 8
+        AutoSize = False
+        Caption = 
+          'F'#246'r att '#246'ppna registreringen, registrera den som skall var tr'#228'ni' +
+          'ngsanvarig. G'#229' sedan tillbaka och l'#228'gg till t ex kioskansvarig.'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -19
+        Font.Name = 'Bahnschrift'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 8
       end
     end
     object HomePageSheet: TTabSheet

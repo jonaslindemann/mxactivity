@@ -88,6 +88,8 @@ type
     Label21: TLabel;
     SaveFrequencySpin: TSpinEdit;
     CloseButton: TButton;
+    StaticText1: TStaticText;
+    Shape1: TShape;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure UpdateHeaderTimerTimer(Sender: TObject);
