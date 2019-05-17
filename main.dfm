@@ -122,7 +122,7 @@ object MxActivityForm: TMxActivityForm
         Height = 488
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
         TabOrder = 5
       end
       object SummaryRentalLabel: TPanel
@@ -292,7 +292,7 @@ object MxActivityForm: TMxActivityForm
         Height = 320
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
         TabOrder = 8
       end
       object Track85Combo: TComboBox
@@ -428,6 +428,7 @@ object MxActivityForm: TMxActivityForm
         Height = 384
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
         TabOrder = 8
       end
       object PersonNbr125Edit: TMaskEdit
@@ -491,22 +492,13 @@ object MxActivityForm: TMxActivityForm
         Pen.Width = 2
         Shape = stRoundRect
       end
-      object FirstNameAdminEdit: TEdit
-        Left = 312
-        Top = 34
-        Width = 416
-        Height = 41
-        Color = clInfoBk
-        TabOrder = 0
-        TextHint = 'F'#246'rnamn'
-      end
       object RegisterAdminButton: TButton
         Left = 776
         Top = 33
         Width = 167
         Height = 44
         Caption = 'Registrera'
-        TabOrder = 5
+        TabOrder = 4
         OnClick = RegisterAdminButtonClick
       end
       object RemoveAdminButton: TButton
@@ -515,7 +507,7 @@ object MxActivityForm: TMxActivityForm
         Width = 166
         Height = 44
         Caption = 'Ta bort'
-        TabOrder = 6
+        TabOrder = 5
       end
       object LastNameAdminEdit: TEdit
         Left = 312
@@ -523,7 +515,7 @@ object MxActivityForm: TMxActivityForm
         Width = 416
         Height = 41
         Color = clInfoBk
-        TabOrder = 1
+        TabOrder = 0
         TextHint = 'Efternamn'
       end
       object PersonNbrAdminEdit: TMaskEdit
@@ -534,7 +526,7 @@ object MxActivityForm: TMxActivityForm
         Color = clInfoBk
         EditMask = '000000-0000;1;_'
         MaxLength = 11
-        TabOrder = 2
+        TabOrder = 1
         Text = '      -    '
       end
       object ActivitySheetGridAdmin: TStringGrid
@@ -544,10 +536,8 @@ object MxActivityForm: TMxActivityForm
         Height = 384
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
-        TabOrder = 7
-        ExplicitLeft = -3
-        ExplicitTop = 350
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
+        TabOrder = 6
       end
       object AdminTACheck: TCheckBox
         Left = 313
@@ -555,7 +545,7 @@ object MxActivityForm: TMxActivityForm
         Width = 416
         Height = 33
         Caption = 'Tr'#228'ningsansvarig'
-        TabOrder = 4
+        TabOrder = 3
       end
       object PhoneNumberAdminEdit: TEdit
         Left = 312
@@ -563,7 +553,7 @@ object MxActivityForm: TMxActivityForm
         Width = 416
         Height = 41
         Color = clInfoBk
-        TabOrder = 3
+        TabOrder = 2
         TextHint = 'Telefon'
       end
       object StaticText1: TStaticText
@@ -585,7 +575,16 @@ object MxActivityForm: TMxActivityForm
         Font.Name = 'Bahnschrift'
         Font.Style = []
         ParentFont = False
+        TabOrder = 7
+      end
+      object FirstNameAdminEdit: TComboBox
+        Left = 313
+        Top = 34
+        Width = 415
+        Height = 41
+        AutoDropDown = True
         TabOrder = 8
+        TextHint = 'F'#246'rnamn'
       end
     end
     object HomePageSheet: TTabSheet

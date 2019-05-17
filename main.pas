@@ -54,7 +54,6 @@ type
     FacebookSheet: TTabSheet;
     FacebookBrowser: TWebBrowser;
     Label13: TLabel;
-    FirstNameAdminEdit: TEdit;
     RegisterAdminButton: TButton;
     RemoveAdminButton: TButton;
     LastNameAdminEdit: TEdit;
@@ -90,6 +89,7 @@ type
     CloseButton: TButton;
     StaticText1: TStaticText;
     Shape1: TShape;
+    FirstNameAdminEdit: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure UpdateHeaderTimerTimer(Sender: TObject);

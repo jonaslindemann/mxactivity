@@ -496,7 +496,12 @@ begin
   if assigned(FStringGrid) then
   begin
     FStringGrid.RowCount:=FParticipants.Count+1;
-    //FStringGrid.FixedRows:=1;
+
+    if FStringGrid.RowCount>1 then
+      FStringGrid.FixedRows:=1
+    else
+      FStringGrid.FixedRows:=0;
+
     FStringGrid.ColCount:=9;
     FStringGrid.Cells[0,0]:='Nr';
     FStringGrid.Cells[1,0]:='Förnamn';
@@ -535,7 +540,12 @@ begin
   if assigned(FStringGrid) then
   begin
     FStringGrid.RowCount:=FParticipants.Count+1;
-    //FStringGrid.FixedRows:=1;
+
+    if FStringGrid.RowCount>1 then
+      FStringGrid.FixedRows:=1
+    else
+      FStringGrid.FixedRows:=0;
+
     FStringGrid.ColCount:=5;
     FStringGrid.Cells[0,0]:='Nr';
     FStringGrid.Cells[1,0]:='Förnamn';
@@ -565,8 +575,13 @@ var
 begin
   if assigned(FStringGrid) then
   begin
-    //FStringGrid.FixedRows:=1;
     FStringGrid.RowCount:=FParticipants.Count+1;
+
+    if FStringGrid.RowCount>1 then
+      FStringGrid.FixedRows:=1
+    else
+      FStringGrid.FixedRows:=0;
+
     FStringGrid.ColCount:=7;
     FStringGrid.Cells[0,0]:='Nr';
     FStringGrid.Cells[1,0]:='Förnamn';
