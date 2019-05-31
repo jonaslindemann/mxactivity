@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.ComCtrls,
   mx, Vcl.ExtCtrls, Vcl.Mask, Vcl.OleCtrls, SHDocVw, Vcl.Samples.Spin,
-  Vcl.Buttons;
+  Vcl.Buttons, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  IdHTTP;
 
 type
   TMxActivityForm = class(TForm)
@@ -16,28 +17,22 @@ type
     TrainingAdminSheet: TTabSheet;
     ActivitySheetGrid85: TStringGrid;
     Remove85Button: TButton;
-    ClubName85Edit: TEdit;
-    Transponder85Edit: TEdit;
     FirstName85Edit: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label5: TLabel;
-    Label6: TLabel;
     LastName85Edit: TEdit;
     PersonNbr85Edit: TMaskEdit;
     Register85Button: TButton;
     Summary85Panel: TPanel;
     Label4: TLabel;
     Remove125Button: TButton;
-    Club125Edit: TEdit;
-    Transponder125Edit: TEdit;
     Register125Button: TButton;
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
     FirstName125Edit: TEdit;
-    Label10: TLabel;
     LastName125Edit: TEdit;
     Summary125Panel: TPanel;
     ActivitySheetGrid125: TStringGrid;
@@ -49,10 +44,6 @@ type
     TimePanel: TPanel;
     AppTitlePanel: TPanel;
     UpdateHeaderTimer: TTimer;
-    HomePageSheet: TTabSheet;
-    WebBrowser: TWebBrowser;
-    FacebookSheet: TTabSheet;
-    FacebookBrowser: TWebBrowser;
     Label13: TLabel;
     RegisterAdminButton: TButton;
     RemoveAdminButton: TButton;
@@ -89,7 +80,28 @@ type
     CloseButton: TButton;
     StaticText1: TStaticText;
     Shape1: TShape;
-    FirstNameAdminEdit: TComboBox;
+    FirstNameAdminEdit: TEdit;
+    Club125Combo: TComboBox;
+    Club85Combo: TComboBox;
+    TabSheet1: TTabSheet;
+    IdHTTP: TIdHTTP;
+    ShowInfoButton: TButton;
+    IpInfoButton: TButton;
+    Training30Button: TButton;
+    Training20Button: TButton;
+    TimeButton: TButton;
+    InfoEdit: TEdit;
+    Label6: TLabel;
+    Label10: TLabel;
+    WarningEdit: TEdit;
+    ShowWarningButton: TButton;
+    OffButton: TButton;
+    Label22: TLabel;
+    Label23: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    SignIpEdit: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure UpdateHeaderTimerTimer(Sender: TObject);
@@ -104,6 +116,17 @@ type
     procedure AutosaveTimerTimer(Sender: TObject);
     procedure SaveLocationButtonClick(Sender: TObject);
     procedure SaveFrequencySpinChange(Sender: TObject);
+    procedure RemoteRentalButtonClick(Sender: TObject);
+    procedure Remove85ButtonClick(Sender: TObject);
+    procedure Remove125ButtonClick(Sender: TObject);
+    procedure RemoveAdminButtonClick(Sender: TObject);
+    procedure IpInfoButtonClick(Sender: TObject);
+    procedure OffButtonClick(Sender: TObject);
+    procedure Training30ButtonClick(Sender: TObject);
+    procedure Training20ButtonClick(Sender: TObject);
+    procedure ShowInfoButtonClick(Sender: TObject);
+    procedure TimeButtonClick(Sender: TObject);
+    procedure ShowWarningButtonClick(Sender: TObject);
   private
     { Private declarations }
     FActivitySheet85 : TMxActivitySheet;
@@ -157,6 +180,24 @@ begin
 
   Self.NewSheets;
   Self.LoadSheets;
+
+  Self.Club125Combo.Items.Add('Skivarps MK');
+  Self.Club125Combo.Items.Add('Anderslövs MK');
+  Self.Club125Combo.Items.Add('Limhamns MK');
+  Self.Club125Combo.Items.Add('Landskrona MK');
+  Self.Club125Combo.Items.Add('FMCK Malmö');
+  Self.Club125Combo.Items.Add('Tomelilla MK');
+  Self.Club125Combo.Items.Add('Helsingborg MC');
+  Self.Club125Combo.Items.Add('Ilstorps Motions & KCK');
+
+  Self.Club85Combo.Items.Add('Skivarps MK');
+  Self.Club85Combo.Items.Add('Anderslövs MK');
+  Self.Club85Combo.Items.Add('Limhamns MK');
+  Self.Club85Combo.Items.Add('Landskrona MK');
+  Self.Club85Combo.Items.Add('FMCK Malmö');
+  Self.Club85Combo.Items.Add('Tomelilla MK');
+  Self.Club85Combo.Items.Add('Helsingborg MC');
+  Self.Club85Combo.Items.Add('Ilstorps Motions & KCK');
 end;
 
 procedure TMxActivityForm.FormShow(Sender: TObject);
@@ -174,14 +215,13 @@ begin
   Self.Summary85Panel.Caption:=IntToStr(FActivitySheet85.Participants.Count);
   Self.Summary125Panel.Caption:=IntToStr(FActivitySheet125.Participants.Count);
 
-  WebBrowser.Navigate('www.skivarpsmk.se');
-  FacebookBrowser.Navigate('https://www.facebook.com/skivarpsmk');
+  //WebBrowser.Navigate('www.skivarpsmk.se');
+  //FacebookBrowser.Navigate('https://www.facebook.com/skivarpsmk');
 
   Self.ActivityPages.ActivePageIndex:=2;
   Self.FirstName125Edit.SetFocus;
 
   Self.UpdateSettingsSheet;
-  Self.UpdateSettings;
 
   if not FActivitySheet85.HasTables then
     begin
@@ -213,8 +253,8 @@ begin
   FActivitySheetAdmin.Free;
   UpdateHeaderTimer.Enabled:=false;
 
-  WebBrowser.Free;
-  FaceBookBrowser.Free;
+  //WebBrowser.Free;
+  //FaceBookBrowser.Free;
 
   UpdateSettings;
 
@@ -282,6 +322,14 @@ begin
   Self.AppTitlePanel.Caption:=TempCaption;
 end;
 
+procedure TMxActivityForm.IpInfoButtonClick(Sender: TObject);
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    IdHTTP.Get('http://'+FSettings.SignIp+':5000/command/startup');
+  end;
+end;
+
 procedure TMxActivityForm.CloseButtonClick(Sender: TObject);
 begin
   Self.Close;
@@ -291,7 +339,7 @@ procedure TMxActivityForm.Register125ButtonClick(Sender: TObject);
 begin
   if Self.ValidForm125 then
   begin
-    FActivitySheet125.Add(FirstName125Edit.Text, LastName125Edit.Text, PersonNbr125Edit.Text, Club125Edit.Text, Transponder125Edit.Text, 'Stora banan');
+    FActivitySheet125.Add(FirstName125Edit.Text, LastName125Edit.Text, PersonNbr125Edit.Text, Club125Combo.Text, '', 'Stora banan');
     FActivitySheet125.UpdateGrid;
     Self.Summary125Panel.Caption:=IntToStr(FActivitySheet125.Participants.Count);
     Self.ClearForm125;
@@ -307,8 +355,8 @@ begin
       FirstName85Edit.Text,
       LastName85Edit.Text,
       PersonNbr85Edit.Text,
-      ClubName85Edit.Text,
-      Transponder85Edit.Text,
+      Club85Combo.Text,
+      '',
       Track85Combo.Items[Track85Combo.ItemIndex]);
 
     FActivitySheet85.UpdateGrid;
@@ -347,6 +395,54 @@ begin
   end;
 end;
 
+procedure TMxActivityForm.RemoteRentalButtonClick(Sender: TObject);
+begin
+  //OutputDebugString(PChar(IntToStr(ActivitySheetGridRental.Row)));
+  if ActivitySheetGridRental.Row>=1 then
+  begin
+    FActivitySheetRental.RemoveAt(ActivitySheetGridRental.Row-1);
+    FActivitySheetRental.UpdateRentalGrid;
+    Self.ClearFormRental;
+    Self.FirstNameRentalEdit.SetFocus;
+    Self.SummaryRentalLabel.Caption:=IntToStr(FActivitySheetRental.Participants.Count);
+  end;
+end;
+
+procedure TMxActivityForm.Remove125ButtonClick(Sender: TObject);
+begin
+  if ActivitySheetGrid125.Row>=1 then
+  begin
+    FActivitySheet125.RemoveAt(ActivitySheetGridRental.Row-1);
+    FActivitySheet125.UpdateGrid;
+    Self.ClearForm125;
+    Self.FirstName125Edit.SetFocus;
+    Self.Summary125Panel.Caption:=IntToStr(FActivitySheet125.Participants.Count);
+  end;
+end;
+
+procedure TMxActivityForm.Remove85ButtonClick(Sender: TObject);
+begin
+  if ActivitySheetGrid85.Row>=1 then
+  begin
+    FActivitySheet85.RemoveAt(ActivitySheetGridRental.Row-1);
+    FActivitySheet85.UpdateGrid;
+    Self.ClearForm85;
+    Self.FirstName85Edit.SetFocus;
+    Self.Summary85Panel.Caption:=IntToStr(FActivitySheet85.Participants.Count);
+  end;
+end;
+
+procedure TMxActivityForm.RemoveAdminButtonClick(Sender: TObject);
+begin
+  if ActivitySheetGridAdmin.Row>=1 then
+  begin
+    FActivitySheetAdmin.RemoveAt(ActivitySheetGridAdmin.Row-1);
+    FActivitySheetAdmin.UpdateAdminGrid;
+    Self.ClearFormAdmin;
+    Self.FirstNameAdminEdit.SetFocus;
+  end;
+end;
+
 procedure TMxActivityForm.SaveFrequencySpinChange(Sender: TObject);
 begin
   Self.UpdateSettings;
@@ -382,6 +478,60 @@ begin
   FActivitySheetRental.SaveCSV;
   FActivitySheetAdmin.SaveLocation:=FSettings.SaveLocation;
   FActivitySheetAdmin.SaveCSV;
+end;
+
+procedure TMxActivityForm.ShowInfoButtonClick(Sender: TObject);
+var
+  PostData : TStringList;
+  Msg : string;
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    PostData:=TStringList.Create;
+    PostData.Add('info_text='+InfoEdit.Text);
+    IdHTTP.Request.ContentType := 'application/x-www-form-urlencoded';
+    IdHTTP.Post('http://'+FSettings.SignIp+':5000/set_info_text', PostData);
+    PostData.Free;
+  end;
+end;
+
+procedure TMxActivityForm.ShowWarningButtonClick(Sender: TObject);
+var
+  PostData : TStringList;
+  Msg : string;
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    PostData:=TStringList.Create;
+    PostData.Add('warn_text='+WarningEdit.Text);
+    IdHTTP.Request.ContentType := 'application/x-www-form-urlencoded';
+    IdHTTP.Post('http://'+FSettings.SignIp+':5000/set_warn_text', PostData);
+    PostData.Free;
+  end;
+end;
+
+procedure TMxActivityForm.TimeButtonClick(Sender: TObject);
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    IdHTTP.Get('http://'+FSettings.SignIp+':5000/command/time');
+  end;
+end;
+
+procedure TMxActivityForm.Training20ButtonClick(Sender: TObject);
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    IdHTTP.Get('http://'+FSettings.SignIp+':5000/command/time_left_twenty');
+  end;
+end;
+
+procedure TMxActivityForm.Training30ButtonClick(Sender: TObject);
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    IdHTTP.Get('http://'+FSettings.SignIp+':5000/command/time_left');
+  end;
 end;
 
 procedure TMxActivityForm.LoadSheets;
@@ -432,6 +582,14 @@ begin
   FRegistrationOpen:=false;
 end;
 
+procedure TMxActivityForm.OffButtonClick(Sender: TObject);
+begin
+  if FSettings.SignIp<>'' then
+  begin
+    IdHTTP.Get('http://'+FSettings.SignIp+':5000/command/off');
+  end;
+end;
+
 procedure TMxActivityForm.OpenRegistration;
 begin
   FRegistrationOpen:=True;
@@ -449,8 +607,8 @@ begin
   Self.FirstName125Edit.Clear;
   Self.LastName125Edit.Clear;
   Self.PersonNbr125Edit.Clear;
-  Self.Club125Edit.Clear;
-  Self.Transponder125Edit.Clear;
+  Self.Club125Combo.Clear;
+  //Self.Transponder125Edit.Clear;
 end;
 
 procedure TMxActivityForm.ClearForm85;
@@ -458,8 +616,8 @@ begin
   Self.FirstName85Edit.Clear;
   Self.LastName85Edit.Clear;
   Self.PersonNbr85Edit.Clear;
-  Self.ClubName85Edit.Clear;
-  Self.Transponder85Edit.Clear;
+  Self.Club85Combo.Clear;
+  //Self.Transponder85Edit.Clear;
 end;
 
 procedure TMxActivityForm.ClearFormAdmin;
@@ -481,6 +639,7 @@ procedure TMxActivityForm.UpdateSettings;
 begin
   FSettings.SaveLocation:=Self.SaveLocationEdit.Text;
   FSettings.SaveFrequency:=Self.SaveFrequencySpin.Value;
+  FSettings.SignIp:=Self.SignIpEdit.Text;
 
   AutosaveTimer.Interval:=FSettings.SaveFrequency*60*1000;
   //AutosaveTimer.Interval:=2000;
@@ -491,6 +650,7 @@ procedure TMxActivityForm.UpdateSettingsSheet;
 begin
   Self.SaveLocationEdit.Text:=FSettings.SaveLocation;
   Self.SaveFrequencySpin.Value:=FSettings.SaveFrequency;
+  Self.SignIpEdit.Text:=FSettings.SignIp;
 end;
 
 function TMxActivityForm.ValidForm125: boolean;
@@ -508,7 +668,7 @@ begin
   if PersonNbr125Edit.Text='' then
     Valid:=false;
 
-  if Club125Edit.Text='' then
+  if Club125Combo.Text='' then
     Valid:=false;
 
   Result:=Valid;
@@ -529,7 +689,7 @@ begin
   if PersonNbr85Edit.Text='' then
     Valid:=false;
 
-  if ClubName85Edit.Text='' then
+  if Club85Combo.Text='' then
     Valid:=false;
 
   Result:=Valid;

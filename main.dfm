@@ -27,6 +27,20 @@ object MxActivityForm: TMxActivityForm
     Height = 33
     Caption = 'Personnummer'
   end
+  object Label24: TLabel
+    Left = 16
+    Top = 397
+    Width = 144
+    Height = 33
+    Caption = 'Datakatalog'
+  end
+  object Label25: TLabel
+    Left = 16
+    Top = 461
+    Width = 193
+    Height = 33
+    Caption = 'Autospara (min)'
+  end
   object ActivityPages: TPageControl
     AlignWithMargins = True
     Left = 8
@@ -37,11 +51,13 @@ object MxActivityForm: TMxActivityForm
     Margins.Top = 15
     Margins.Right = 8
     Margins.Bottom = 8
-    ActivePage = TrainingAdminSheet
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 0
     TabWidth = 170
     OnChange = ActivityPagesChange
+    ExplicitWidth = 1465
+    ExplicitHeight = 737
     object RentalSheet: TTabSheet
       Caption = 'Hyrcross'
       ImageIndex = 5
@@ -114,6 +130,7 @@ object MxActivityForm: TMxActivityForm
         Height = 44
         Caption = 'Ta bort'
         TabOrder = 4
+        OnClick = RemoteRentalButtonClick
       end
       object ActivitySheetGridRental: TStringGrid
         Left = 0
@@ -124,6 +141,8 @@ object MxActivityForm: TMxActivityForm
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
         TabOrder = 5
+        ExplicitLeft = 3
+        ExplicitTop = 233
       end
       object SummaryRentalLabel: TPanel
         Left = 1292
@@ -147,6 +166,9 @@ object MxActivityForm: TMxActivityForm
     end
     object Training85Sheet: TTabSheet
       Caption = '50-85 cc'
+      ExplicitLeft = 0
+      ExplicitWidth = 1457
+      ExplicitHeight = 689
       DesignSize = (
         1473
         728)
@@ -178,23 +200,16 @@ object MxActivityForm: TMxActivityForm
         Height = 33
         Caption = 'Efternamn'
       end
-      object Label6: TLabel
-        Left = 24
-        Top = 284
-        Width = 153
-        Height = 33
-        Caption = 'Transponder'
-      end
       object Label4: TLabel
         Left = 24
-        Top = 348
+        Top = 289
         Width = 60
         Height = 33
         Caption = 'Bana'
       end
       object Splitter1: TSplitter
         Left = 0
-        Top = 405
+        Top = 341
         Width = 1473
         Height = 3
         Cursor = crVSplit
@@ -208,25 +223,9 @@ object MxActivityForm: TMxActivityForm
         Width = 167
         Height = 44
         Caption = 'Ta bort'
-        TabOrder = 6
-      end
-      object ClubName85Edit: TEdit
-        Left = 304
-        Top = 218
-        Width = 417
-        Height = 41
-        Color = clInfoBk
-        TabOrder = 3
-        TextHint = 'Klubbnamn'
-      end
-      object Transponder85Edit: TEdit
-        Left = 304
-        Top = 281
-        Width = 417
-        Height = 41
-        Color = clInfoBk
-        TabOrder = 4
-        TextHint = 'Frivilligt'
+        TabOrder = 5
+        TabStop = False
+        OnClick = Remove85ButtonClick
       end
       object FirstName85Edit: TEdit
         Left = 304
@@ -263,7 +262,7 @@ object MxActivityForm: TMxActivityForm
         Width = 168
         Height = 44
         Caption = 'Registrera'
-        TabOrder = 5
+        TabOrder = 4
         OnClick = Register85ButtonClick
       end
       object Summary85Panel: TPanel
@@ -283,34 +282,48 @@ object MxActivityForm: TMxActivityForm
         Font.Style = []
         ParentBackground = False
         ParentFont = False
-        TabOrder = 7
+        TabOrder = 6
       end
       object ActivitySheetGrid85: TStringGrid
         Left = 0
-        Top = 408
+        Top = 344
         Width = 1473
-        Height = 320
+        Height = 384
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
-        TabOrder = 8
+        TabOrder = 7
       end
       object Track85Combo: TComboBox
         Left = 304
-        Top = 345
+        Top = 281
         Width = 417
         Height = 41
         ItemIndex = 0
-        TabOrder = 9
+        TabOrder = 8
         Text = 'Stora banan'
         Items.Strings = (
           'Stora banan'
           'Mellan banan')
       end
+      object Club85Combo: TComboBox
+        Left = 305
+        Top = 218
+        Width = 416
+        Height = 41
+        AutoDropDown = True
+        Color = clInfoBk
+        Sorted = True
+        TabOrder = 3
+        TextHint = 'Klubb'
+      end
     end
     object Training125Sheet: TTabSheet
       Caption = '>= 125 cc'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitWidth = 1457
+      ExplicitHeight = 689
       DesignSize = (
         1473
         728)
@@ -335,13 +348,6 @@ object MxActivityForm: TMxActivityForm
         Height = 33
         Caption = 'Klubb'
       end
-      object Label10: TLabel
-        Left = 24
-        Top = 284
-        Width = 153
-        Height = 33
-        Caption = 'Transponder'
-      end
       object Label12: TLabel
         Left = 24
         Top = 93
@@ -355,25 +361,9 @@ object MxActivityForm: TMxActivityForm
         Width = 166
         Height = 44
         Caption = 'Ta bort'
-        TabOrder = 6
-      end
-      object Club125Edit: TEdit
-        Left = 304
-        Top = 218
-        Width = 416
-        Height = 41
-        Color = clInfoBk
-        TabOrder = 3
-        TextHint = 'Klubbnamn'
-      end
-      object Transponder125Edit: TEdit
-        Left = 304
-        Top = 281
-        Width = 416
-        Height = 41
-        Color = clInfoBk
-        TabOrder = 4
-        TextHint = 'Frivilligt'
+        TabOrder = 5
+        TabStop = False
+        OnClick = Remove125ButtonClick
       end
       object Register125Button: TButton
         Left = 768
@@ -381,7 +371,7 @@ object MxActivityForm: TMxActivityForm
         Width = 167
         Height = 44
         Caption = 'Registrera'
-        TabOrder = 5
+        TabOrder = 4
         OnClick = Register125ButtonClick
       end
       object FirstName125Edit: TEdit
@@ -419,17 +409,17 @@ object MxActivityForm: TMxActivityForm
         Font.Style = []
         ParentBackground = False
         ParentFont = False
-        TabOrder = 7
+        TabOrder = 6
       end
       object ActivitySheetGrid125: TStringGrid
         Left = 0
-        Top = 344
+        Top = 288
         Width = 1473
-        Height = 384
+        Height = 440
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect]
-        TabOrder = 8
+        TabOrder = 7
       end
       object PersonNbr125Edit: TMaskEdit
         Left = 304
@@ -441,6 +431,17 @@ object MxActivityForm: TMxActivityForm
         MaxLength = 11
         TabOrder = 2
         Text = '      -    '
+      end
+      object Club125Combo: TComboBox
+        Left = 305
+        Top = 218
+        Width = 416
+        Height = 41
+        AutoDropDown = True
+        Color = clInfoBk
+        Sorted = True
+        TabOrder = 3
+        TextHint = 'Klubb'
       end
     end
     object TrainingAdminSheet: TTabSheet
@@ -498,7 +499,7 @@ object MxActivityForm: TMxActivityForm
         Width = 167
         Height = 44
         Caption = 'Registrera'
-        TabOrder = 4
+        TabOrder = 5
         OnClick = RegisterAdminButtonClick
       end
       object RemoveAdminButton: TButton
@@ -507,7 +508,8 @@ object MxActivityForm: TMxActivityForm
         Width = 166
         Height = 44
         Caption = 'Ta bort'
-        TabOrder = 5
+        TabOrder = 6
+        OnClick = RemoveAdminButtonClick
       end
       object LastNameAdminEdit: TEdit
         Left = 312
@@ -515,7 +517,7 @@ object MxActivityForm: TMxActivityForm
         Width = 416
         Height = 41
         Color = clInfoBk
-        TabOrder = 0
+        TabOrder = 1
         TextHint = 'Efternamn'
       end
       object PersonNbrAdminEdit: TMaskEdit
@@ -526,7 +528,7 @@ object MxActivityForm: TMxActivityForm
         Color = clInfoBk
         EditMask = '000000-0000;1;_'
         MaxLength = 11
-        TabOrder = 1
+        TabOrder = 2
         Text = '      -    '
       end
       object ActivitySheetGridAdmin: TStringGrid
@@ -537,7 +539,7 @@ object MxActivityForm: TMxActivityForm
         Align = alBottom
         Anchors = [akLeft, akTop, akRight, akBottom]
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goRowSelect, goFixedRowClick]
-        TabOrder = 6
+        TabOrder = 7
       end
       object AdminTACheck: TCheckBox
         Left = 313
@@ -545,7 +547,9 @@ object MxActivityForm: TMxActivityForm
         Width = 416
         Height = 33
         Caption = 'Tr'#228'ningsansvarig'
-        TabOrder = 3
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
       end
       object PhoneNumberAdminEdit: TEdit
         Left = 312
@@ -553,7 +557,7 @@ object MxActivityForm: TMxActivityForm
         Width = 416
         Height = 41
         Color = clInfoBk
-        TabOrder = 2
+        TabOrder = 3
         TextHint = 'Telefon'
       end
       object StaticText1: TStaticText
@@ -575,61 +579,24 @@ object MxActivityForm: TMxActivityForm
         Font.Name = 'Bahnschrift'
         Font.Style = []
         ParentFont = False
-        TabOrder = 7
+        TabOrder = 8
       end
-      object FirstNameAdminEdit: TComboBox
+      object FirstNameAdminEdit: TEdit
         Left = 313
         Top = 34
-        Width = 415
+        Width = 416
         Height = 41
-        AutoDropDown = True
-        TabOrder = 8
+        Color = clInfoBk
+        TabOrder = 0
         TextHint = 'F'#246'rnamn'
-      end
-    end
-    object HomePageSheet: TTabSheet
-      Caption = 'Hemsida'
-      ImageIndex = 4
-      object WebBrowser: TWebBrowser
-        Left = 0
-        Top = 0
-        Width = 1473
-        Height = 728
-        Align = alClient
-        TabOrder = 0
-        ExplicitWidth = 1457
-        ExplicitHeight = 684
-        ControlData = {
-          4C0000003D9800003E4B00000000000000000000000000000000000000000000
-          000000004C000000000000000000000001000000E0D057007335CF11AE690800
-          2B2E126208000000000000004C0000000114020000000000C000000000000046
-          8000000000000000000000000000000000000000000000000000000000000000
-          00000000000000000100000000000000000000000000000000000000}
-      end
-    end
-    object FacebookSheet: TTabSheet
-      Caption = 'Facebook'
-      ImageIndex = 5
-      object FacebookBrowser: TWebBrowser
-        Left = 0
-        Top = 0
-        Width = 1473
-        Height = 728
-        Align = alClient
-        TabOrder = 0
-        ExplicitWidth = 1457
-        ExplicitHeight = 684
-        ControlData = {
-          4C0000003D9800003E4B00000000000000000000000000000000000000000000
-          000000004C000000000000000000000001000000E0D057007335CF11AE690800
-          2B2E126208000000000000004C0000000114020000000000C000000000000046
-          8000000000000000000000000000000000000000000000000000000000000000
-          00000000000000000100000000000000000000000000000000000000}
       end
     end
     object SettingsSheet: TTabSheet
       Caption = 'Inst'#228'llningar'
       ImageIndex = 6
+      ExplicitLeft = 8
+      ExplicitWidth = 1457
+      ExplicitHeight = 689
       object Label20: TLabel
         Left = 40
         Top = 45
@@ -643,6 +610,13 @@ object MxActivityForm: TMxActivityForm
         Width = 193
         Height = 33
         Caption = 'Autospara (min)'
+      end
+      object Label26: TLabel
+        Left = 40
+        Top = 181
+        Width = 88
+        Height = 33
+        Caption = 'Skylt ip'
       end
       object SaveLocationEdit: TEdit
         Left = 320
@@ -674,6 +648,131 @@ object MxActivityForm: TMxActivityForm
         Value = 5
         OnChange = SaveFrequencySpinChange
       end
+      object SignIpEdit: TEdit
+        Left = 320
+        Top = 178
+        Width = 417
+        Height = 41
+        Color = clInfoBk
+        TabOrder = 3
+        TextHint = 'Skylt ip'
+      end
+    end
+    object TabSheet1: TTabSheet
+      Caption = 'Skylt'
+      ImageIndex = 5
+      ExplicitLeft = 8
+      ExplicitWidth = 1457
+      ExplicitHeight = 689
+      object Label6: TLabel
+        Left = 34
+        Top = 206
+        Width = 141
+        Height = 33
+        Caption = 'Information'
+      end
+      object Label10: TLabel
+        Left = 34
+        Top = 273
+        Width = 93
+        Height = 33
+        Caption = 'Varning'
+      end
+      object Label22: TLabel
+        Left = 32
+        Top = 43
+        Width = 94
+        Height = 33
+        Caption = 'Allm'#228'nt'
+      end
+      object Label23: TLabel
+        Left = 32
+        Top = 107
+        Width = 90
+        Height = 33
+        Caption = 'Tr'#228'ning'
+      end
+      object ShowInfoButton: TButton
+        Left = 660
+        Top = 203
+        Width = 153
+        Height = 42
+        Caption = 'Visa'
+        TabOrder = 0
+        OnClick = ShowInfoButtonClick
+      end
+      object IpInfoButton: TButton
+        Left = 226
+        Top = 39
+        Width = 153
+        Height = 44
+        Caption = 'IP-info'
+        TabOrder = 1
+        OnClick = IpInfoButtonClick
+      end
+      object Training30Button: TButton
+        Left = 226
+        Top = 110
+        Width = 153
+        Height = 44
+        Caption = '30 min'
+        TabOrder = 2
+        OnClick = Training30ButtonClick
+      end
+      object Training20Button: TButton
+        Left = 394
+        Top = 110
+        Width = 153
+        Height = 44
+        Caption = '20 min'
+        TabOrder = 3
+        OnClick = Training20ButtonClick
+      end
+      object TimeButton: TButton
+        Left = 562
+        Top = 110
+        Width = 153
+        Height = 44
+        Caption = 'Klocka'
+        TabOrder = 4
+        OnClick = TimeButtonClick
+      end
+      object InfoEdit: TEdit
+        Left = 226
+        Top = 203
+        Width = 416
+        Height = 41
+        Color = clInfoBk
+        TabOrder = 5
+        TextHint = 'F'#246'rnamn'
+      end
+      object WarningEdit: TEdit
+        Left = 226
+        Top = 272
+        Width = 416
+        Height = 41
+        Color = clInfoBk
+        TabOrder = 6
+        TextHint = 'F'#246'rnamn'
+      end
+      object ShowWarningButton: TButton
+        Left = 660
+        Top = 270
+        Width = 153
+        Height = 42
+        Caption = 'Visa'
+        TabOrder = 7
+        OnClick = ShowWarningButtonClick
+      end
+      object OffButton: TButton
+        Left = 394
+        Top = 39
+        Width = 153
+        Height = 44
+        Caption = 'Av'
+        TabOrder = 8
+        OnClick = OffButtonClick
+      end
     end
   end
   object Panel1: TPanel
@@ -693,6 +792,7 @@ object MxActivityForm: TMxActivityForm
     ParentFont = False
     TabOrder = 1
     StyleElements = []
+    ExplicitTop = -3
     DesignSize = (
       1497
       65)
@@ -767,21 +867,39 @@ object MxActivityForm: TMxActivityForm
   end
   object UpdateHeaderTimer: TTimer
     OnTimer = UpdateHeaderTimerTimer
-    Left = 1316
-    Top = 793
+    Left = 1212
+    Top = 753
   end
   object AutosaveTimer: TTimer
     Enabled = False
     Interval = 120000
     OnTimer = AutosaveTimerTimer
-    Left = 1192
-    Top = 792
+    Left = 1128
+    Top = 752
   end
   object OpenDialog: TFileOpenDialog
     FavoriteLinks = <>
     FileTypes = <>
     Options = [fdoPickFolders, fdoPathMustExist]
-    Left = 1080
-    Top = 794
+    Left = 1048
+    Top = 754
+  end
+  object IdHTTP: TIdHTTP
+    AllowCookies = True
+    HandleRedirects = True
+    ProxyParams.BasicAuthentication = False
+    ProxyParams.ProxyPort = 0
+    Request.ContentLength = -1
+    Request.ContentRangeEnd = -1
+    Request.ContentRangeStart = -1
+    Request.ContentRangeInstanceLength = -1
+    Request.Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+    Request.BasicAuthentication = False
+    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    Request.Ranges.Units = 'bytes'
+    Request.Ranges = <>
+    HTTPOptions = [hoForceEncodeParams]
+    Left = 980
+    Top = 748
   end
 end

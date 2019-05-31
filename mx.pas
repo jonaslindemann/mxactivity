@@ -12,10 +12,12 @@ type
     FSaveLocation: string;
     FSaveFrequency: integer;
     FLastStart : string;
+    FSignIp : string;
 
     procedure SetSaveFrequency(const Value: integer);
     procedure SetSaveLocation(const Value: string);
     procedure SetLastStart(const Value: string);
+    procedure SetSignIp(const Value: string);
 
   public
     constructor Create;
@@ -27,6 +29,7 @@ type
     property SaveLocation : string read FSaveLocation write SetSaveLocation;
     property SaveFrequency : integer read FSaveFrequency write SetSaveFrequency;
     property LastStart : string read FLastStart write SetLastStart;
+    property SignIp : string read FSignIp write SetSignIp;
   end;
 
   TMxParticipant = class(TObject)
@@ -126,6 +129,16 @@ implementation
 
 { TMxParticipant }
 
+function UpCaseFirstChar(const S: string): string;
+begin
+  if Length(S) = 0 then
+    Result := S
+  else begin
+    Result := LowerCase(S);
+    Result[1] := UpCase(Result[1]);
+  end;
+end;
+
 constructor TMxParticipant.Create;
 var
   Today : TDateTime;
@@ -178,12 +191,12 @@ end;
 
 procedure TMxParticipant.SetFirstName(const Value: string);
 begin
-  FFirstName := Value;
+  FFirstName := UpCaseFirstChar(Value);
 end;
 
 procedure TMxParticipant.SetLastName(const Value: string);
 begin
-  FLastName := Value;
+  FLastName := UpCaseFirstChar(Value);
 end;
 
 procedure TMxParticipant.SetPersonNbr(const Value: string);
@@ -646,6 +659,7 @@ begin
     FSaveLocation:=SettingsFile.ReadString('Settings', 'SaveLocation', '');
     FSaveFrequency:=SettingsFile.ReadInteger('Settings', 'SaveFrequency', -1);
     FLastStart:=SettingsFile.ReadString('Settings', 'LastStart', '');
+    FSignIp:=SettingsFile.ReadString('Settings', 'SignIp', '');
   finally
     SettingsFile.Free;
   end;
@@ -661,6 +675,7 @@ begin
     SettingsFile.WriteString('Settings', 'SaveLocation', FSaveLocation);
     SettingsFile.WriteInteger('Settings', 'SaveFrequency', FSaveFrequency);
     SettingsFile.WriteString('Settings', 'LastStart', FLastStart);
+    SettingsFile.WriteString('Settings', 'SignIp', FSignIp);
   finally
     SettingsFile.Free;
   end;
@@ -679,6 +694,11 @@ end;
 procedure TMxSettings.SetSaveLocation(const Value: string);
 begin
   FSaveLocation := Value;
+end;
+
+procedure TMxSettings.SetSignIp(const Value: string);
+begin
+  FSignIp := Value;
 end;
 
 end.
